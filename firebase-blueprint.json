@@ -1,0 +1,111 @@
+{
+  "entities": {
+    "Store": {
+      "title": "Store",
+      "description": "Configurações da loja e identidade visual.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Nome da loja" },
+        "slug": { "type": "string", "description": "Slug único para o link da loja" },
+        "logoUrl": { "type": "string", "description": "URL da logo" },
+        "primaryColor": { "type": "string", "description": "Cor primária da interface" },
+        "whatsapp": { "type": "string", "description": "WhatsApp para contato e pedidos" },
+        "pixKey": { "type": "string", "description": "Chave Pix para pagamentos" },
+        "mercadoPagoAccessToken": { "type": "string", "description": "Token do Mercado Pago (opcional)" },
+        "ownerId": { "type": "string", "description": "UID do dono da loja" },
+        "subscriptionStatus": { "type": "string", "enum": ["trial", "active", "expired"] },
+        "trialEndsAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "slug", "ownerId"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Produtos do catálogo.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "price": { "type": "number", "description": "Preço de venda" },
+        "costPrice": { "type": "number", "description": "Preço de custo/produção" },
+        "stock": { "type": "number" },
+        "imageUrl": { "type": "string" },
+        "category": { "type": "string" },
+        "isActive": { "type": "boolean" }
+      },
+      "required": ["name", "price", "costPrice", "stock"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Pedidos realizados pelos clientes.",
+      "type": "object",
+      "properties": {
+        "customerName": { "type": "string" },
+        "customerWhatsapp": { "type": "string" },
+        "items": { "type": "array" },
+        "total": { "type": "number" },
+        "status": { "type": "string", "enum": ["pending", "confirmed", "cancelled"] },
+        "paymentMethod": { "type": "string", "enum": ["pix", "card"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["customerName", "customerWhatsapp", "items", "total"]
+    },
+    "Customer": {
+      "title": "Customer",
+      "description": "Dados do CRM leve.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "whatsapp": { "type": "string" },
+        "birthday": { "type": "string", "format": "date" },
+        "totalSpent": { "type": "number" },
+        "lastPurchaseAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "whatsapp"]
+    },
+    "FinancialRecord": {
+      "title": "FinancialRecord",
+      "description": "Fluxo de caixa.",
+      "type": "object",
+      "properties": {
+        "type": { "type": "string", "enum": ["income", "expense"] },
+        "amount": { "type": "number" },
+        "category": { "type": "string" },
+        "description": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" }
+      },
+      "required": ["type", "amount", "date"]
+    }
+  },
+  "firestore": {
+    "/stores/{storeId}": {
+      "schema": "Store",
+      "description": "Configurações da loja"
+    },
+    "/stores/{storeId}/products/{productId}": {
+      "schema": "Product",
+      "description": "Catálogo de produtos"
+    },
+    "/stores/{storeId}/orders/{orderId}": {
+      "schema": "Order",
+      "description": "Pedidos da loja"
+    },
+    "/stores/{storeId}/customers/{customerId}": {
+      "schema": "Customer",
+      "description": "Base de clientes"
+    },
+    "/stores/{storeId}/finance/{recordId}": {
+      "schema": "FinancialRecord",
+      "description": "Registros financeiros"
+    },
+    "/users/{userId}": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string" },
+          "storeId": { "type": "string" }
+        }
+      },
+      "description": "Mapeamento de usuário para loja"
+    }
+  }
+}

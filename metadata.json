@@ -1,0 +1,6 @@
+{
+  "name": "VendaZap SaaS",
+  "description": "Plataforma multi-tenant para vendas via link com catálogo personalizado, CRM leve e controle financeiro.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": []
+}
