@@ -18,7 +18,8 @@ import {
   ChevronRight,
   Settings as SettingsIcon,
   Megaphone,
-  Save
+  Save,
+  Info
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
@@ -49,7 +50,10 @@ export default function SuperAdmin() {
     subscriptionPrice: '29.90',
     adBannerUrl: '',
     adLink: '',
-    showAdsOnStorefront: false
+    showAdsOnStorefront: false,
+    adType: 'manual' as 'manual' | 'adsense',
+    adSenseClientId: '',
+    adSenseSlotId: ''
   });
 
   useEffect(() => {
@@ -403,34 +407,92 @@ export default function SuperAdmin() {
                 <label htmlFor="showAds" className="font-bold text-neutral-900">Ativar anúncios nos catálogos dos clientes</label>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-8">
-                <div className="space-y-2">
-                  <label className="block text-sm font-bold text-neutral-700">URL da Imagem do Banner</label>
-                  <input 
-                    type="text"
-                    value={globalSettings.adBannerUrl}
-                    onChange={(e) => setGlobalSettings({ ...globalSettings, adBannerUrl: e.target.value })}
-                    className="w-full px-4 py-4 bg-neutral-50 border border-neutral-200 rounded-2xl outline-none focus:ring-2 focus:ring-neutral-900"
-                    placeholder="https://exemplo.com/banner.jpg"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="block text-sm font-bold text-neutral-700">Link do Anúncio (Opcional)</label>
-                  <input 
-                    type="text"
-                    value={globalSettings.adLink}
-                    onChange={(e) => setGlobalSettings({ ...globalSettings, adLink: e.target.value })}
-                    className="w-full px-4 py-4 bg-neutral-50 border border-neutral-200 rounded-2xl outline-none focus:ring-2 focus:ring-neutral-900"
-                    placeholder="https://seu-link.com"
-                  />
-                </div>
+              <div className="grid grid-cols-2 gap-4 p-1 bg-neutral-100 rounded-2xl">
+                <button 
+                  onClick={() => setGlobalSettings({ ...globalSettings, adType: 'manual' })}
+                  className={cn(
+                    "py-3 rounded-xl font-bold transition-all",
+                    globalSettings.adType === 'manual' ? "bg-white text-neutral-900 shadow-sm" : "text-neutral-500 hover:text-neutral-700"
+                  )}
+                >
+                  Banner Manual
+                </button>
+                <button 
+                  onClick={() => setGlobalSettings({ ...globalSettings, adType: 'adsense' })}
+                  className={cn(
+                    "py-3 rounded-xl font-bold transition-all",
+                    globalSettings.adType === 'adsense' ? "bg-white text-neutral-900 shadow-sm" : "text-neutral-500 hover:text-neutral-700"
+                  )}
+                >
+                  Google AdSense
+                </button>
               </div>
 
-              {globalSettings.adBannerUrl && (
+              {globalSettings.adType === 'manual' ? (
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-bold text-neutral-700">URL da Imagem do Banner</label>
+                    <input 
+                      type="text"
+                      value={globalSettings.adBannerUrl}
+                      onChange={(e) => setGlobalSettings({ ...globalSettings, adBannerUrl: e.target.value })}
+                      className="w-full px-4 py-4 bg-neutral-50 border border-neutral-200 rounded-2xl outline-none focus:ring-2 focus:ring-neutral-900"
+                      placeholder="https://exemplo.com/banner.jpg"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-bold text-neutral-700">Link do Anúncio (Opcional)</label>
+                    <input 
+                      type="text"
+                      value={globalSettings.adLink}
+                      onChange={(e) => setGlobalSettings({ ...globalSettings, adLink: e.target.value })}
+                      className="w-full px-4 py-4 bg-neutral-50 border border-neutral-200 rounded-2xl outline-none focus:ring-2 focus:ring-neutral-900"
+                      placeholder="https://seu-link.com"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-bold text-neutral-700">AdSense Client ID (Publisher ID)</label>
+                    <input 
+                      type="text"
+                      value={globalSettings.adSenseClientId}
+                      onChange={(e) => setGlobalSettings({ ...globalSettings, adSenseClientId: e.target.value })}
+                      className="w-full px-4 py-4 bg-neutral-50 border border-neutral-200 rounded-2xl outline-none focus:ring-2 focus:ring-neutral-900"
+                      placeholder="ca-pub-XXXXXXXXXXXXXXXX"
+                    />
+                    <p className="text-xs text-neutral-400">Encontre isso no seu painel do AdSense (ex: ca-pub-1234567890).</p>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-bold text-neutral-700">AdSense Slot ID (Opcional)</label>
+                    <input 
+                      type="text"
+                      value={globalSettings.adSenseSlotId}
+                      onChange={(e) => setGlobalSettings({ ...globalSettings, adSenseSlotId: e.target.value })}
+                      className="w-full px-4 py-4 bg-neutral-50 border border-neutral-200 rounded-2xl outline-none focus:ring-2 focus:ring-neutral-900"
+                      placeholder="XXXXXXXXXX"
+                    />
+                    <p className="text-xs text-neutral-400">Se deixado em branco, tentaremos usar Anúncios Automáticos.</p>
+                  </div>
+                </div>
+              )}
+
+              {globalSettings.adType === 'manual' && globalSettings.adBannerUrl && (
                 <div className="space-y-2">
                   <p className="text-sm font-bold text-neutral-700">Pré-visualização:</p>
                   <div className="w-full aspect-[21/9] rounded-2xl overflow-hidden border border-neutral-200">
                     <img src={globalSettings.adBannerUrl} alt="Preview Ad" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                  </div>
+                </div>
+              )}
+
+              {globalSettings.adType === 'adsense' && (
+                <div className="p-4 bg-blue-50 rounded-2xl border border-blue-100 flex gap-3">
+                  <Info className="text-blue-500 shrink-0" size={20} />
+                  <div className="text-sm text-blue-700">
+                    <p className="font-bold mb-1">Dica de Integração:</p>
+                    <p>Certifique-se de que seu domínio está aprovado no Google AdSense. Os anúncios podem levar algumas horas para aparecer após a configuração.</p>
                   </div>
                 </div>
               )}

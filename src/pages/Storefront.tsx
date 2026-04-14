@@ -26,6 +26,40 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+const AdSenseUnit = ({ clientId, slotId }: { clientId: string, slotId?: string }) => {
+  useEffect(() => {
+    try {
+      // Inject AdSense script if not present
+      if (!document.querySelector('script[src*="adsbygoogle"]')) {
+        const script = document.createElement('script');
+        script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${clientId}`;
+        script.async = true;
+        script.crossOrigin = "anonymous";
+        document.head.appendChild(script);
+      }
+
+      // Initialize ad
+      (window as any).adsbygoogle = (window as any).adsbygoogle || [];
+      (window as any).adsbygoogle.push({});
+    } catch (e) {
+      console.error('AdSense error:', e);
+    }
+  }, [clientId, slotId]);
+
+  return (
+    <div className="w-full overflow-hidden rounded-[2rem] bg-neutral-50 border border-neutral-100 flex items-center justify-center min-h-[100px]">
+      <ins 
+        className="adsbygoogle"
+        style={{ display: 'block', width: '100%' }}
+        data-ad-client={clientId}
+        data-ad-slot={slotId}
+        data-ad-format="auto"
+        data-full-width-responsive="true"
+      />
+    </div>
+  );
+};
+
 export default function Storefront() {
   const { slug } = useParams();
   const [store, setStore] = useState<any>(null);
@@ -266,30 +300,37 @@ export default function Storefront() {
       </div>
 
       {/* Global Ad Banner */}
-      {platformSettings?.showAdsOnStorefront && platformSettings?.adBannerUrl && (
+      {platformSettings?.showAdsOnStorefront && (
         <div className="max-w-4xl mx-auto px-4 py-2">
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="w-full aspect-[21/9] md:aspect-[32/9] rounded-[2rem] overflow-hidden border border-neutral-100 shadow-sm relative group"
-          >
-            <a 
-              href={platformSettings.adLink || '#'} 
-              target={platformSettings.adLink ? "_blank" : "_self"} 
-              rel="noreferrer"
-              className="block w-full h-full"
+          {platformSettings.adType === 'adsense' && platformSettings.adSenseClientId ? (
+            <AdSenseUnit 
+              clientId={platformSettings.adSenseClientId} 
+              slotId={platformSettings.adSenseSlotId} 
+            />
+          ) : platformSettings.adBannerUrl ? (
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="w-full aspect-[21/9] md:aspect-[32/9] rounded-[2rem] overflow-hidden border border-neutral-100 shadow-sm relative group"
             >
-              <img 
-                src={platformSettings.adBannerUrl} 
-                alt="Patrocinado" 
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                referrerPolicy="no-referrer" 
-              />
-              <div className="absolute top-4 right-4 bg-black/50 backdrop-blur-md text-white text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-widest">
-                Patrocinado
-              </div>
-            </a>
-          </motion.div>
+              <a 
+                href={platformSettings.adLink || '#'} 
+                target={platformSettings.adLink ? "_blank" : "_self"} 
+                rel="noreferrer"
+                className="block w-full h-full"
+              >
+                <img 
+                  src={platformSettings.adBannerUrl} 
+                  alt="Patrocinado" 
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                  referrerPolicy="no-referrer" 
+                />
+                <div className="absolute top-4 right-4 bg-black/50 backdrop-blur-md text-white text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-widest">
+                  Patrocinado
+                </div>
+              </a>
+            </motion.div>
+          ) : null}
         </div>
       )}
 
